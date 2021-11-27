@@ -1,0 +1,110 @@
+import numpy as np
+import gym
+from gym import spaces
+
+
+class CircleOfDeath(gym.Env):
+    metadata = {'render.modes': ['console']}
+
+    def __init__(self, config):
+        """
+        HighwayETC Environment
+        :param config: see config.py
+        """
+        super(CircleOfDeath, self).__init__()
+
+        # action space
+        # ["no_change", "speed_up", "speed_up_up", "slow_down", "slow_down_down"]
+        self.actions_list = ["stay", "right", "left", "up", "down", "right_up", "right_down", "left_up", "left_down"]
+        #self.action2delta = {0: 0., 1: 1., 2: 2., 3: -1., 4: -2.}
+        self.action_space = spaces.Discrete(len(self.actions_list))
+
+        # state space: [position, velocity]
+        self.state_features = ["start_loc", "exit_goal", "cur_loc", "sensor_reads"]
+        #self.observation_space = spaces.Box(low=np.array([0, 0]),
+                                            high=np.array([self.max_position ]),
+                                            shape=(6,6),
+                                            dtype=np.float32)
+
+        # rewards_dict
+        self.rewards_dict = {
+            "crash": -100,
+            "restricted_zone": -90,
+            "wrong_direction": -40,
+            "missed_exit": -30,
+            "reg_no_crash": 3,
+            "success": 50,
+            "delay_penalty": -10
+        }
+
+        # current state np.array([position, velocity])
+        self.state = TODO
+        self.prev_state = self.state
+
+        # median + sidewalk corners
+        self.restricted_zones = [0, 5, 14, 15, 20, 21, 30, 35]
+
+    def reset(self):
+        """
+        Return observation as np.array
+        :return: observation (np.array)
+        """
+        self.state = TODO
+        return self.state
+
+    def _get_reward(self, action):
+        # return reward, done
+        reward = 0
+        done = False
+
+        # reward_goal
+        if self.state[0] >= self.goal_state[0]:
+            if self.state[1] == self.goal_state[1]:
+                reward += self.rewards_dict['goal_with_good_velocity']
+            else:
+                reward += self.rewards_dict['goal_with_bad_velocity']
+            done = True
+        else:
+            reward += self.rewards_dict['per_step_cost']
+
+        # limit speed when close to ETC
+        if self.prev_state[0] <= self.crosswalk_pos <= self.state[0]:
+            # penalize overspeeding over ETC
+            if self.state[1] > self.crosswalk_max_velocity:
+                reward += self.rewards_dict['over_speed_near_crosswalk']
+
+        return reward, done
+
+    def step(self, action):
+        # print(self.state)
+        # 0=no_change, 1=speed_up, 2=speed_up_up, 3=slow_down, 4=slow_down_down
+
+        # remember prev state
+        self.prev_state = self.state
+
+        # update velocity (cannot be negative)
+        self.state[1] += self.action2delta[action]
+        self.state[1] = max(self.state[1], 0)
+        self.state[1] = min(self.state[1], self.max_velocity)
+
+        # update position
+        # new_pos = old_pos + velocity
+        self.state[0] += self.state[1]
+        self.state[0] = min(self.max_position, self.state[0])
+
+        reward, done = self._get_reward(action)
+
+        return self.state, reward, done, {}
+
+    def render(self, mode='console'):
+        if mode != 'console':
+            raise NotImplementedError()
+        # print(self.state)
+
+    def close(self):
+        pass
+
+# Instantiate the env
+env = CircleOfDeath()
+# Define and Train the agent
+model = A2C('CnnPolicy', env).learn(total_timesteps=1000)
