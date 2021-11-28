@@ -48,7 +48,6 @@ class CircleOfDeath(gym.Env):
         self.exit_zones = [1,2,3,4,6,12,18,24,11,17,23,29,31,32,33,34]
         self.zone_num_to_dir = {0: self.exit_zoneNorth, 1: self.exit_zoneWest, 2: self.exit_zoneSouth, 3: self.exit_zoneEast}
         
-        ["stay", "right", "left", "up", "down", "right_up", "right_down", "left_up", "left_down"]
         self.right_dirs = {
             0: ["down", "right_down"],
             1: ["left_down", "left", "down"],
@@ -61,10 +60,10 @@ class CircleOfDeath(gym.Env):
             8: ["left", "up", "left_up", "left_down"],
             9: ["left", "up", "left_up"],
             10: ["left", "up", "left_up", "right"],
-            11: ["left",, "left_up"],
+            11: ["left", "left_up"],
             12: ["right", "down", "right_down"],
             13: ["left", "down"],
-            14: ["left",, "left_down"],
+            14: ["left", "left_down"],
             15: ["up", "left_up"],
             16: ["right", "up", "right_up", "left_up"],
             17: ["left", "up", "left_up"],
@@ -72,7 +71,7 @@ class CircleOfDeath(gym.Env):
             19: ["left", "down", "right_down"],
             20: ["left", "left_down", "down", "right_down"],
             21: ["right", "right_up"],
-            22: ["right", "up", "right_up",],
+            22: ["right", "up", "right_up"],
             23: ["up", "left_up", 'left'],
             24: ["right", "down", "right_down"],
             25: ["left", "down", "right", "right_down"],
@@ -120,24 +119,30 @@ class CircleOfDeath(gym.Env):
         # return reward, done
         reward = 0
         done = False
+        no_faults = True
 
         if self.state["cur_loc"] in self.restricted_zones:
             reward += self.rewards_dict["restricted_zone"]
-        else: #temporary for testing, to be removed
-            reward += self.rewards_dict["reg_no_crash"]
+            no_faults = False
 
         if action=="stay" or self.state['cur_loc']==self.prev_state['cur_loc']:
             reward += self.rewards_dict["delay_penalty"]
+            no_faults = False
 
         if self.state["cur_loc"] in self.state["exit_goal"]:
             done=True
             reward += self.rewards_dict["success"]
 
+        if action not in self.right_dirs[self.prev_state['cur_loc']]:
+            reward += self.rewards_dict["wrong_direction"]
+            no_faults = False
+
+        if no_faults:
+            reward += self.rewards_dict["reg_no_crash"]
+
         # self.rewards_dict = {
         #     "crash": -100,
-        #     "wrong_direction": -40,
         #     "missed_exit": -30,
-        #     "reg_no_crash": 3,
         # }
 
         return reward, done
@@ -208,13 +213,3 @@ class CircleOfDeath(gym.Env):
         print("finished")
 
 # Instantiate the env
-env = CircleOfDeath()
-
-env.reset()
-for _ in range(10):
-    env.render()
-    # print(env.action_space.sample())
-    env.step(env.action_space.sample()) # take a random action
-env.close()
-# Define and Train the agent
-# model = A2C('CnnPolicy', env).learn(total_timesteps=1000)
