@@ -48,6 +48,47 @@ class CircleOfDeath(gym.Env):
         self.exit_zones = [1,2,3,4,6,12,18,24,11,17,23,29,31,32,33,34]
         self.zone_num_to_dir = {0: self.exit_zoneNorth, 1: self.exit_zoneWest, 2: self.exit_zoneSouth, 3: self.exit_zoneEast}
         
+        ["stay", "right", "left", "up", "down", "right_up", "right_down", "left_up", "left_down"]
+        self.right_dirs = {
+            0: ["down", "right_down"],
+            1: ["left_down", "left", "down"],
+            2: ["left_down", "left", "down"],
+            3: ["left_down", "left", "down"],
+            4: ["left_down", "left", "down"],
+            5: ["left_down", "left"],
+            6: ["right", "down", "right_down"],
+            7: ["left", "down", "left_down" ,"up"],
+            8: ["left", "up", "left_up", "left_down"],
+            9: ["left", "up", "left_up"],
+            10: ["left", "up", "left_up", "right"],
+            11: ["left",, "left_up"],
+            12: ["right", "down", "right_down"],
+            13: ["left", "down"],
+            14: ["left",, "left_down"],
+            15: ["up", "left_up"],
+            16: ["right", "up", "right_up", "left_up"],
+            17: ["left", "up", "left_up"],
+            18: ["right", "down", "right_down"],
+            19: ["left", "down", "right_down"],
+            20: ["left", "left_down", "down", "right_down"],
+            21: ["right", "right_up"],
+            22: ["right", "up", "right_up",],
+            23: ["up", "left_up", 'left'],
+            24: ["right", "down", "right_down"],
+            25: ["left", "down", "right", "right_down"],
+            26: ["right", "down", "right_down"],
+            27: ["right", "down", "right_down"],
+            28: ["right", "down", "up", "right_up"],
+            29: ["up", "left_up", "left"],
+            30: ["right", "up", "right_up"],
+            31: ["right", "up", "right_up"],
+            32: ["right", "up", "right_up"],
+            33: ["right", "up", "right_up"],
+            34: ["right", "up", "right_up"],
+            35: ["right", "up"]
+        }
+
+
         self.circle = np.full(self.circle_size, '*')
         for i in self.restricted_zones:
             block_coord = np.unravel_index(i, self.circle_size)
