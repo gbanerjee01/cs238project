@@ -33,9 +33,10 @@ class CircleOfDeath(gym.Env):
             "restricted_zone": -90,
             "wrong_direction": -40,
             "missed_exit": -30,
-            "reg_no_crash": 3,
+            "reg_no_crash": 10,
             "success": 50,
-            "delay_penalty": -10
+            "delay_penalty": -5,
+            "out_of_bounds": -500
         }
 
         # median + sidewalk corners
@@ -115,7 +116,7 @@ class CircleOfDeath(gym.Env):
         return state 
         # sensor_reads = 
 
-    def _get_reward(self, action):
+    def _get_reward(self, action, out_of_bounds):
         # return reward, done
         reward = 0
         done = False
@@ -137,6 +138,10 @@ class CircleOfDeath(gym.Env):
             reward += self.rewards_dict["wrong_direction"]
             no_faults = False
 
+        if out_of_bounds:
+            reward += self.rewards_dict["out_of_bounds"]
+            no_faults = False
+
         if no_faults:
             reward += self.rewards_dict["reg_no_crash"]
 
@@ -155,6 +160,7 @@ class CircleOfDeath(gym.Env):
         self.prev_state = self.state
         action = self.actions_list[actionIndex]
         self.state["action"] = action
+        out_of_bounds = False
 
         cur_loc_coord = np.unravel_index(self.state["cur_loc"], self.circle_size)
         new_loc_coord = None
@@ -185,13 +191,14 @@ class CircleOfDeath(gym.Env):
 
         if new_loc_coord[0]>(self.circle_size[0]-1) or new_loc_coord[1]>(self.circle_size[1]-1) or new_loc_coord[0]<0 or new_loc_coord[1]<0:
             new_loc_coord = cur_loc_coord
+            out_of_bounds = True
             print("Reached boundary of map")
 
         print(new_loc_coord)
         new_loc =  np.ravel_multi_index(new_loc_coord, self.circle_size)
         self.state['cur_loc'] = new_loc
 
-        reward, done = self._get_reward(action)
+        reward, done = self._get_reward(action, out_of_bounds)
 
         return self.state, reward, done, {}
 
