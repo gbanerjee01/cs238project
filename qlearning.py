@@ -4,6 +4,7 @@ import gym
 from gym import spaces
 import random
 from tqdm import tqdm
+import utils
 
 env = CircleOfDeath()
 q_table = np.zeros([36, 4, env.action_space.n]) #4 end zones
@@ -17,7 +18,7 @@ epsilon = 0.5
 all_epochs = []
 all_penalties = []
 
-for i in tqdm(range(1, 100001)):
+for i in tqdm(range(1, 101)):
     new_env = env.reset()
     state = new_env['cur_loc']
     goal_list = new_env['exit_goal']
@@ -35,7 +36,7 @@ for i in tqdm(range(1, 100001)):
     epochs, penalties, reward, = 0, 0, 0
     done = False
     
-    #maybe q table can't just be 36x9 -> needs to encode intended destination
+    #q code referenced from a towardsdatascience article and then adapted
     while not done:
         if random.uniform(0, 1) < epsilon:
             action = env.action_space.sample() # Explore action space
@@ -77,7 +78,7 @@ for episode in range(1):
     else: 
         goal_num = 3
 
-    for t in range(10):
+    for t in range(100):
         # print(observation)
         action = np.argmax(q_table[observation['cur_loc'], goal_num])
         actions_list.append(action)
@@ -86,5 +87,5 @@ for episode in range(1):
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
-breakpoint()
+# breakpoint()
 env.close()

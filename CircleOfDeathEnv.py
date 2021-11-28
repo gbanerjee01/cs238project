@@ -1,31 +1,22 @@
 import numpy as np
 import gym
 from gym import spaces
+import utils
 
 
 class CircleOfDeath(gym.Env):
     metadata = {'render.modes': ['console']}
 
     def __init__(self):
-        """
-        HighwayETC Environment
-        :param config: see config.py
-        """
         super(CircleOfDeath, self).__init__()
 
         # action space
-        # ["no_change", "speed_up", "speed_up_up", "slow_down", "slow_down_down"]
         self.actions_list = ["stay", "right", "left", "up", "down", "right_up", "right_down", "left_up", "left_down"]
-        #self.action2delta = {0: 0., 1: 1., 2: 2., 3: -1., 4: -2.}
         self.action_space = spaces.Discrete(len(self.actions_list))
 
         # state space: [position, velocity]
         self.state = dict()
         self.circle_size = (6,6)
-        # self.observation_space = spaces.Box(low=np.array([0, 0]),
-                                            # high=np.array([self.max_position ]),
-                                            # shape=(6,6),
-                                            # dtype=np.float32)
 
         # rewards_dict
         self.rewards_dict = {
@@ -49,45 +40,7 @@ class CircleOfDeath(gym.Env):
         self.exit_zones = [1,2,3,4,6,12,18,24,11,17,23,29,31,32,33,34]
         self.zone_num_to_dir = {0: self.exit_zoneNorth, 1: self.exit_zoneWest, 2: self.exit_zoneSouth, 3: self.exit_zoneEast}
 
-        self.right_dirs = {
-            0: ["down", "right_down"],
-            1: ["left_down", "left", "down"],
-            2: ["left_down", "left", "down"],
-            3: ["left_down", "left", "down"],
-            4: ["left_down", "left", "down"],
-            5: ["left_down", "left"],
-            6: ["right", "down", "right_down"],
-            7: ["left", "down", "left_down" ,"up"],
-            8: ["left", "up", "left_up", "left_down"],
-            9: ["left", "up", "left_up"],
-            10: ["left", "up", "left_up", "right"],
-            11: ["left", "left_up"],
-            12: ["right", "down", "right_down"],
-            13: ["left", "down"],
-            14: ["left", "left_down"],
-            15: ["up", "left_up"],
-            16: ["right", "up", "right_up", "left_up"],
-            17: ["left", "up", "left_up"],
-            18: ["right", "down", "right_down"],
-            19: ["left", "down", "right_down"],
-            20: ["left", "left_down", "down", "right_down"],
-            21: ["right", "right_up"],
-            22: ["right", "up", "right_up"],
-            23: ["up", "left_up", 'left'],
-            24: ["right", "down", "right_down"],
-            25: ["left", "down", "right", "right_down"],
-            26: ["right", "down", "right_down"],
-            27: ["right", "down", "right_down"],
-            28: ["right", "down", "up", "right_up"],
-            29: ["up", "left_up", "left"],
-            30: ["right", "up", "right_up"],
-            31: ["right", "up", "right_up"],
-            32: ["right", "up", "right_up"],
-            33: ["right", "up", "right_up"],
-            34: ["right", "up", "right_up"],
-            35: ["right", "up"]
-        }
-
+        self.right_dirs = utils.get_right_dirs()
 
         self.circle = np.full(self.circle_size, '*')
         for i in self.restricted_zones:
@@ -98,10 +51,6 @@ class CircleOfDeath(gym.Env):
         self.prev_state = self.state
 
     def reset(self):
-        """
-        Return observation as np.array
-        :return: observation (np.array)
-        """
         self.state = self._new_state()
         return self.state
 
@@ -147,47 +96,22 @@ class CircleOfDeath(gym.Env):
 
         # self.rewards_dict = {
         #     "crash": -100,
-        #     "missed_exit": -30,
-        # }
+        #}
 
         return reward, done
 
     def step(self, actionIndex):
-        # print(self.state)
-        # 0=no_change, 1=speed_up, 2=speed_up_up, 3=slow_down, 4=slow_down_down
-
-        # remember prev state
         self.prev_state = self.state
         action = self.actions_list[actionIndex]
         self.state["action"] = action
+
+        if action=="None":
+            return
+
         out_of_bounds = False
 
         cur_loc_coord = np.unravel_index(self.state["cur_loc"], self.circle_size)
-        new_loc_coord = None
-
-        #["stay", "right", "left", "up", "down", "right_up", "right_down", "left_up", "left_down"]
-        if action=="stay":
-            new_loc_coord = cur_loc_coord
-        elif action=="right":
-            new_loc_coord = (cur_loc_coord[0], cur_loc_coord[1] + 1)
-        elif action=="left":
-            new_loc_coord = (cur_loc_coord[0], cur_loc_coord[1] - 1)
-        elif action=="up":
-            new_loc_coord = (cur_loc_coord[0] - 1, cur_loc_coord[1])
-        elif action=="down":
-            new_loc_coord = (cur_loc_coord[0] + 1, cur_loc_coord[1])
-        elif action=="right_up":
-            new_loc_coord = (cur_loc_coord[0] - 1, cur_loc_coord[1] + 1)
-        elif action=="right_down":
-            new_loc_coord = (cur_loc_coord[0] + 1, cur_loc_coord[1] + 1)
-        elif action=="left_up":
-            new_loc_coord = (cur_loc_coord[0] - 1, cur_loc_coord[1] - 1)
-        elif action=="left_down":
-            new_loc_coord = (cur_loc_coord[0] + 1, cur_loc_coord[1] - 1)
-        elif action=="None":
-            return
-        else:
-            raise KeyError("Unknown Action")
+        new_loc_coord = utils.execute_action(cur_loc_coord, action)
 
         if new_loc_coord[0]>(self.circle_size[0]-1) or new_loc_coord[1]>(self.circle_size[1]-1) or new_loc_coord[0]<0 or new_loc_coord[1]<0:
             new_loc_coord = cur_loc_coord
@@ -218,5 +142,3 @@ class CircleOfDeath(gym.Env):
 
     def close(self):
         print("finished")
-
-# Instantiate the env
