@@ -22,21 +22,21 @@ class CircleOfDeath(gym.Env):
         # state space: [position, velocity]
         self.state = dict()
         self.circle_size = (6,6)
-        #self.observation_space = spaces.Box(low=np.array([0, 0]),
+        # self.observation_space = spaces.Box(low=np.array([0, 0]),
                                             # high=np.array([self.max_position ]),
                                             # shape=(6,6),
                                             # dtype=np.float32)
 
         # rewards_dict
         self.rewards_dict = {
-            "crash": -100,
-            "restricted_zone": -90,
-            "wrong_direction": -40,
-            "missed_exit": -30,
+            "crash": -50,
+            "restricted_zone": -30,
+            "wrong_direction": -10,
+            "missed_exit": -5,
             "reg_no_crash": 10,
-            "success": 50,
-            "delay_penalty": -5,
-            "out_of_bounds": -500
+            "success": 300,
+            "delay_penalty": -1000,
+            "out_of_bounds": -100
         }
 
         # median + sidewalk corners
@@ -192,9 +192,9 @@ class CircleOfDeath(gym.Env):
         if new_loc_coord[0]>(self.circle_size[0]-1) or new_loc_coord[1]>(self.circle_size[1]-1) or new_loc_coord[0]<0 or new_loc_coord[1]<0:
             new_loc_coord = cur_loc_coord
             out_of_bounds = True
-            print("Reached boundary of map")
+            # print("Reached boundary of map")
 
-        print(new_loc_coord)
+        # print(new_loc_coord)
         new_loc =  np.ravel_multi_index(new_loc_coord, self.circle_size)
         self.state['cur_loc'] = new_loc
 
