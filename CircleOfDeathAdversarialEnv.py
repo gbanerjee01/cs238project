@@ -68,6 +68,7 @@ class CircleOfDeathAdversarial(gym.Env):
         state["action"] = "None"
 
         state["adversary_locations"] = np.random.choice(self.valid_zones, size=self.num_agents, replace=False) #only 1 adversary can be in a location at a time
+        state["positive_observations"] = utils.uncertainty(state["adversary_locations"])
         # breakpoint()
         return state 
         
@@ -134,6 +135,7 @@ class CircleOfDeathAdversarial(gym.Env):
         out_of_bounds = False
 
         self.move_adversaries()
+        self.state["positive_observations"] = utils.uncertainty(self.state["adversary_locations"])
 
         cur_loc_coord = np.unravel_index(self.state["cur_loc"], self.circle_size)
         new_loc_coord = utils.execute_action(cur_loc_coord, action)
@@ -145,7 +147,9 @@ class CircleOfDeathAdversarial(gym.Env):
 
         # print(new_loc_coord)
         new_loc =  np.ravel_multi_index(new_loc_coord, self.circle_size)
-        self.state['cur_loc'] = new_loc
+
+        if new_loc not in self.state["positive_observations"]: #if adversary detected, don't move update to new location
+            self.state['cur_loc'] = new_loc
 
         reward, done = self._get_reward(action, out_of_bounds)
 

@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 
 def plot(raw_rewardsperep, save_path):
@@ -79,3 +80,22 @@ def execute_action(cur_loc_coord, action):
         raise KeyError("Unknown Action")
 
     return new_loc_coord
+
+
+def uncertainty(adv_locs):
+    all_locs = np.arange(36)
+
+    difference = set(all_locs).symmetric_difference(set(adv_locs))
+    no_advs = list(difference)
+
+    ret = []
+
+    for i in no_advs: #false positives explicitly being added
+        if np.random.normal(0.05, 0.01) > 0.8:
+            ret.append[i]
+
+    for i in adv_locs: #false negative introduction by implicit ignoring
+        if np.random.normal(0.85, 0.5) > 0.9:
+            ret.append[i]
+
+    return ret
