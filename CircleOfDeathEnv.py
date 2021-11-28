@@ -35,7 +35,7 @@ class CircleOfDeath(gym.Env):
             "missed_exit": -5,
             "reg_no_crash": 10,
             "success": 300,
-            "delay_penalty": -1000,
+            "delay_penalty": -40,
             "out_of_bounds": -100
         }
 
@@ -48,7 +48,7 @@ class CircleOfDeath(gym.Env):
         self.exit_zoneEast = [11,17,23,29]
         self.exit_zones = [1,2,3,4,6,12,18,24,11,17,23,29,31,32,33,34]
         self.zone_num_to_dir = {0: self.exit_zoneNorth, 1: self.exit_zoneWest, 2: self.exit_zoneSouth, 3: self.exit_zoneEast}
-        
+
         self.right_dirs = {
             0: ["down", "right_down"],
             1: ["left_down", "left", "down"],
