@@ -6,9 +6,11 @@ from gym import spaces
 import random
 from tqdm import tqdm
 import utils
+import hyperparameters
+
 
 # env = CircleOfDeath()
-env = CircleOfDeathAdversarial(3)
+env = CircleOfDeathAdversarial(hyperparameters.n_adversaries)
 q_table = np.zeros([36, 4, env.action_space.n]) #4 end zones
 
 # Hyperparameters
@@ -20,7 +22,7 @@ epsilon = 0.5
 all_epochs = []
 all_penalties = []
 
-for i in tqdm(range(1, 101)):
+for i in tqdm(range(1, hyperparameters.n_episodes)):
     new_env = env.reset()
     state = new_env['cur_loc']
     goal_list = new_env['exit_goal']

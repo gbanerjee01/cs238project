@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import hyperparameters
+
 
 
 def plot(raw_rewardsperep, save_path):
@@ -91,11 +93,11 @@ def uncertainty(adv_locs):
     ret = []
 
     for i in no_advs: #false positives explicitly being added
-        if np.random.normal(0.05, 0.01) > 0.8:
-            ret.append[i]
+        if np.random.uniform() > (1-hyperparameters.false_positive_rate):
+            ret.append(i)
 
     for i in adv_locs: #false negative introduction by implicit ignoring
-        if np.random.normal(0.85, 0.5) > 0.9:
-            ret.append[i]
+        if np.random.uniform() > (1-hyperparameters.false_negative_rate):
+            ret.append(i)
 
     return ret

@@ -2,6 +2,7 @@ import numpy as np
 import gym
 from gym import spaces
 import utils
+import hyperparameterss
 
 
 class CircleOfDeath(gym.Env):
