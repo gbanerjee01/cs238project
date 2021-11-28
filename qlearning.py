@@ -1,4 +1,5 @@
 from CircleOfDeathEnv import CircleOfDeath
+from CircleOfDeathAdversarialEnv import CircleOfDeathAdversarial
 import numpy as np
 import gym
 from gym import spaces
@@ -6,7 +7,8 @@ import random
 from tqdm import tqdm
 import utils
 
-env = CircleOfDeath()
+# env = CircleOfDeath()
+env = CircleOfDeathAdversarial(3)
 q_table = np.zeros([36, 4, env.action_space.n]) #4 end zones
 
 # Hyperparameters
@@ -78,7 +80,7 @@ for episode in range(1):
     else: 
         goal_num = 3
 
-    for t in range(100):
+    for t in range(10):
         # print(observation)
         action = np.argmax(q_table[observation['cur_loc'], goal_num])
         actions_list.append(action)

@@ -20,14 +20,14 @@ class CircleOfDeath(gym.Env):
 
         # rewards_dict
         self.rewards_dict = {
-            "crash": -50,
-            "restricted_zone": -30,
-            "wrong_direction": -10,
+            "crash": -500,
+            "restricted_zone": -50,
+            "wrong_direction": -20,
             "missed_exit": -5,
             "reg_no_crash": 10,
             "success": 300,
             "delay_penalty": -10,
-            "out_of_bounds": -100
+            "out_of_bounds": -1000
         }
 
         # median + sidewalk corners
