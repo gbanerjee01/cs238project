@@ -35,7 +35,7 @@ class CircleOfDeath(gym.Env):
             "missed_exit": -5,
             "reg_no_crash": 10,
             "success": 300,
-            "delay_penalty": -40,
+            "delay_penalty": -10,
             "out_of_bounds": -100
         }
 

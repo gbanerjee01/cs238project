@@ -63,13 +63,26 @@ for i in tqdm(range(1, 100001)):
 
 print("Training finished.\n")
 
+actions_list = []
 for episode in range(1):
     observation = env.reset()
+    env.render()
+    goal_list = observation['exit_goal']
+    if goal_list == env.exit_zoneNorth: 
+        goal_num = 0
+    elif goal_list == env.exit_zoneWest: 
+        goal_num = 1
+    elif goal_list == env.exit_zoneSouth: 
+        goal_num = 2, 
+    else: 
+        goal_num = 3
+
     for t in range(10):
-        env.render()
         # print(observation)
-        action = np.argmax(observation['cur_loc'])
+        action = np.argmax(q_table[observation['cur_loc'], goal_num])
+        actions_list.append(action)
         observation, reward, done, info = env.step(action)
+        env.render()
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
