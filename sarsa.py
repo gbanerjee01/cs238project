@@ -48,22 +48,18 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
     state = new_env['cur_loc']
     action = choose_action(state, goal_num)
 
-    # env.render()
     epochs, penalties, reward, = 0, 0, 0
     done = False
     
-    #q code referenced from a towardsdatascience article and then adapted
     while not done:
-        #env.render()
-
         #get next state
-        next_state_allinfo, reward, done, info = env.step(action) #how to define action1?
+        next_state_allinfo, reward, done, info = env.step(action)
         next_state = next_state_allinfo['cur_loc']
 
         #choose next action
         next_action = choose_action(next_state, goal_num)
         
-        #UPDATE (func to learn q val)
+        #update (func to learn q val)
         predict = q_table[state, goal_num, action]
         target = reward + gamma * q_table[next_state, goal_num, next_action]
         q_table[state, goal_num, action] += alpha * (target - predict)
@@ -89,7 +85,6 @@ for episode in range(1):
         goal_num = 3
 
     for t in range(10):
-        # print(observation)
         action = np.argmax(q_table[observation['cur_loc'], goal_num])
         actions_list.append(action)
         observation, reward, done, info = env.step(action)
@@ -99,3 +94,7 @@ for episode in range(1):
             break
 # breakpoint()
 env.close()
+
+#PERFORMANCE EVAL
+print ("Performance: ", reward/hyperparameters.n_episodes)
+# print(q_table)
