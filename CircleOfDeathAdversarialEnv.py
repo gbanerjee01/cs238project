@@ -47,7 +47,7 @@ class CircleOfDeathAdversarial(gym.Env):
 
         self.right_dirs = utils.get_right_dirs()
 
-        self.circle = np.full(self.circle_size, '*')
+        self.circle = np.full(self.circle_size, '-')
         for i in self.restricted_zones:
             block_coord = np.unravel_index(i, self.circle_size)
             self.circle[block_coord[0], block_coord[1]] = 'X'
