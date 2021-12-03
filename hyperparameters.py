@@ -1,4 +1,4 @@
-algorithm = "sarsa" #qlearning OR sarsa
+algorithm = "sarsalambda" #qlearning OR sarsa
 n_adversaries = 5
 
 
