@@ -34,7 +34,7 @@ episode_rewards = []
 episode_iterations = []
 episode_result = []
 
-for i in tqdm(range(1, hyperparameters.n_episodes)):
+for i in tqdm(range(hyperparameters.n_episodes)):
     new_env = env.reset()
 
     #this code block just helps determine which dimension of the q table to fill; I'm explicitly assigning the known exit location as part of the state so that total state space is actually 6 x 6 x 4 instead of 36. This may or may not be relevant to other algorithms
@@ -99,7 +99,7 @@ test_result = []
 test_rewards = []
 
 actions_list = []
-for episode in range(1):
+for episode in tqdm(range(hyperparameters.test_eps)):
     observation = env.reset()
     # env.render()
     goal_list = observation['exit_goal']
@@ -115,7 +115,7 @@ for episode in range(1):
     ep_reward = 0
     ep_success = False
 
-    for t in range(10):
+    for t in range(50):
         action = np.argmax(q_table[observation['cur_loc'], goal_num]) #wait do I need to chagne anything here
         actions_list.append(action)
         observation, reward, done, info = env.step(action)
@@ -126,13 +126,13 @@ for episode in range(1):
             if env.state["cur_loc"] in env.state["exit_goal"]:
                 ep_success = True
 
-
-            test_actions_len.append(len(actions_list))
-            test_result.append(ep_success)
-            test_rewards.append(ep_reward)
-
             # print("Episode finished after {} timesteps".format(t+1))
             break
+    test_actions_len.append(len(actions_list))
+    test_result.append(ep_success)
+    test_rewards.append(ep_reward)
+
+            
 # breakpoint()
 env.close()
 
@@ -142,7 +142,9 @@ np.save(hyperparameters.exp_file_prefix + "test_rewards", test_rewards)
 
 #TODO: log performance?
 #PERFORMANCE EVAL
-print ("Performance: ", reward/hyperparameters.n_episodes)
 np.save(hyperparameters.exp_file_prefix + "performance", [reward/hyperparameters.n_episodes])
+
+print ("Performance: ", str(reward/hyperparameters.n_episodes))
+# np.save(hyperparameters.exp_file_prefix + "performance", [reward/hyperparameters.n_episodes])
 
 # print(q_table)
