@@ -1,5 +1,5 @@
 algorithm = "qlearning" #qlearning OR sarsa
-n_adversaries = 4
+n_adversaries = 5
 
 
 false_positive_rate = 0.05
