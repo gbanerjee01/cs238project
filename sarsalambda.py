@@ -16,7 +16,6 @@ STATE_SPACE = 36
 q_table = np.zeros([STATE_SPACE, 4, env.action_space.n]) #4 end zones
 n_table = np.zeros([STATE_SPACE, env.action_space.n]) #exponentially decaying visit count for all state action pairs. goals NA
 
-
 # Hyperparameters
 alpha = 0.1
 gamma = 0.6
@@ -51,7 +50,6 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
 
     state = new_env['cur_loc']
     action = choose_action(state, goal_num)
-    n_table[state, action]+=1
 
     epochs, penalties, reward, = 0, 0, 0
     done = False
@@ -59,13 +57,13 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
     while not done:
         #get next state
         next_state_allinfo, reward, done, info = env.step(action)
+        n_table[state, action]+=1
         next_state = next_state_allinfo['cur_loc']
 
         #choose next action
         next_action = choose_action(next_state, goal_num)
 
         #Sarsa temporal difference update partially applied to every state-action pair according to decaying visit count
-        n_table[next_state, next_action]+=1
         s_thing = reward + gamma * q_table[next_state, goal_num, next_action] - q_table[state, goal_num, action]
         
         #update, I guess (func to learn q val)
