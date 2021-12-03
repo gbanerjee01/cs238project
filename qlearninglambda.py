@@ -106,6 +106,7 @@ print("Training finished.\n")
 
 #TODO Save q_table and three lists
 np.save(hyperparameters.exp_file_prefix + "q_table", q_table)
+np.save(hyperparameters.exp_file_prefix + "n_table", n_table)
 np.save(hyperparameters.exp_file_prefix + "episode_rewards", episode_rewards)
 np.save(hyperparameters.exp_file_prefix + "episode_iterations", episode_iterations)
 np.save(hyperparameters.exp_file_prefix + "episode_result", episode_result)
