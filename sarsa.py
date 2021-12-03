@@ -30,6 +30,10 @@ def choose_action(state, goal_num):
         action = np.argmax(q_table[state, goal_num]) # Exploit learned values
     return action
 
+episode_rewards = []
+episode_iterations = []
+episode_result = []
+
 for i in tqdm(range(1, hyperparameters.n_episodes)):
     new_env = env.reset()
 
@@ -50,11 +54,18 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
 
     epochs, penalties, reward, = 0, 0, 0
     done = False
+
+    n_iterations = 0
+    episode_reward = 0
+    episode_successful = False
     
     while not done:
+        n_iterations += 1
         #get next state
         next_state_allinfo, reward, done, info = env.step(action)
         next_state = next_state_allinfo['cur_loc']
+
+        episode_reward += reward
 
         #choose next action
         next_action = choose_action(next_state, goal_num)
@@ -68,12 +79,29 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
         action = next_action
         epochs += 1
 
+        if done and env.state["cur_loc"] in env.state["exit_goal"]:
+            episode_successful = True
+
+    episode_iterations.append(n_iterations)
+    episode_rewards.append(episode_reward)
+    episode_result.append(episode_successful)
+
 print("Training finished.\n")
+
+np.save(hyperparameters.exp_file_prefix + "q_table", q_table)
+np.save(hyperparameters.exp_file_prefix + "episode_rewards", episode_rewards)
+np.save(hyperparameters.exp_file_prefix + "episode_iterations", episode_iterations)
+np.save(hyperparameters.exp_file_prefix + "episode_result", episode_result)
+
+
+test_actions_len = []
+test_result = []
+test_rewards = []
 
 actions_list = []
 for episode in range(1):
     observation = env.reset()
-    env.render()
+    # env.render()
     goal_list = observation['exit_goal']
     if goal_list == env.exit_zoneNorth: 
         goal_num = 0
@@ -84,17 +112,37 @@ for episode in range(1):
     else: 
         goal_num = 3
 
+    ep_reward = 0
+    ep_success = False
+
     for t in range(10):
         action = np.argmax(q_table[observation['cur_loc'], goal_num]) #wait do I need to chagne anything here
         actions_list.append(action)
         observation, reward, done, info = env.step(action)
-        env.render()
+
+        ep_reward += reward
+        # env.render()
         if done:
-            print("Episode finished after {} timesteps".format(t+1))
+            if env.state["cur_loc"] in env.state["exit_goal"]:
+                ep_success = True
+
+
+            test_actions_len.append(len(actions_list))
+            test_result.append(ep_success)
+            test_rewards.append(ep_reward)
+
+            # print("Episode finished after {} timesteps".format(t+1))
             break
 # breakpoint()
 env.close()
 
+np.save(hyperparameters.exp_file_prefix + "test_actions_len", test_actions_len)
+np.save(hyperparameters.exp_file_prefix + "test_result", test_result)
+np.save(hyperparameters.exp_file_prefix + "test_rewards", test_rewards)
+
+#TODO: log performance?
 #PERFORMANCE EVAL
 print ("Performance: ", reward/hyperparameters.n_episodes)
+np.save(hyperparameters.exp_file_prefix + "performance", [reward/hyperparameters.n_episodes])
+
 # print(q_table)
