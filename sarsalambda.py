@@ -1,4 +1,4 @@
-#src https://www.geeksforgeeks.org/sarsa-reinforcement-learning/
+#src the textbook, surprisingly
 from CircleOfDeathEnv import CircleOfDeath
 from CircleOfDeathAdversarialEnv import CircleOfDeathAdversarial
 import numpy as np
@@ -12,12 +12,16 @@ import hyperparameters
 
 # env = CircleOfDeath()
 env = CircleOfDeathAdversarial(hyperparameters.n_adversaries)
-q_table = np.zeros([36, 4, env.action_space.n]) #4 end zones
+STATE_SPACE = 36
+q_table = np.zeros([STATE_SPACE, 4, env.action_space.n]) #4 end zones
+n_table = np.zeros([STATE_SPACE, env.action_space.n]) #exponentially decaying visit count for all state action pairs. goals NA
+
 
 # Hyperparameters
 alpha = 0.1
 gamma = 0.6
 epsilon = 0.5
+epsilon_decay = 0.999 #took some number from this github adieu2/sarsa-lambda-frozen-lake/blob/master/sarsa_lambda.py
 
 # For plotting metrics
 all_epochs = []
@@ -47,6 +51,7 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
 
     state = new_env['cur_loc']
     action = choose_action(state, goal_num)
+    n_table[state, action]+=1
 
     epochs, penalties, reward, = 0, 0, 0
     done = False
@@ -58,11 +63,20 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
 
         #choose next action
         next_action = choose_action(next_state, goal_num)
+
+        #Sarsa temporal difference update partially applied to every state-action pair according to decaying visit count
+        n_table[next_state, next_action]+=1
+        s_thing = reward + gamma * q_table[next_state, goal_num, next_action] - q_table[state, goal_num, action]
         
-        #update (func to learn q val)
-        predict = q_table[state, goal_num, action]
-        target = reward + gamma * q_table[next_state, goal_num, next_action]
-        q_table[state, goal_num, action] += alpha * (target - predict)
+        #update, I guess (func to learn q val)
+        for state in range(0, STATE_SPACE):
+            for action in range(0, env.action_space.n):
+                q_table[state, goal_num, action] += alpha * s_thing * n_table[state, action]
+                n_table[state, action] *= gamma * epsilon_decay
+        
+        # predict = q_table[state, goal_num, action]
+        # target = reward + gamma * q_table[next_state, goal_num, next_action]
+        # q_table[state, goal_num, action] += alpha * (target - predict)
 
         state = next_state
         action = next_action
