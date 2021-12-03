@@ -88,10 +88,10 @@ for i in tqdm(range(1, hyperparameters.n_episodes)):
 
 print("Training finished.\n")
 
-np.save(exp_file_prefix + "q_table", q_table)
-np.save(exp_file_prefix + "episode_rewards", episode_rewards)
-np.save(exp_file_prefix + "episode_iterations", episode_iterations)
-np.save(exp_file_prefix + "episode_result", episode_result)
+np.save(hyperparameters.exp_file_prefix + "q_table", q_table)
+np.save(hyperparameters.exp_file_prefix + "episode_rewards", episode_rewards)
+np.save(hyperparameters.exp_file_prefix + "episode_iterations", episode_iterations)
+np.save(hyperparameters.exp_file_prefix + "episode_result", episode_result)
 
 
 test_actions_len = []
@@ -136,13 +136,13 @@ for episode in range(1):
 # breakpoint()
 env.close()
 
-np.save(exp_file_prefix + "test_actions_len", test_actions_len)
-np.save(exp_file_prefix + "test_result", test_result)
-np.save(exp_file_prefix + "test_rewards", test_rewards)
+np.save(hyperparameters.exp_file_prefix + "test_actions_len", test_actions_len)
+np.save(hyperparameters.exp_file_prefix + "test_result", test_result)
+np.save(hyperparameters.exp_file_prefix + "test_rewards", test_rewards)
 
 #TODO: log performance?
 #PERFORMANCE EVAL
 print ("Performance: ", reward/hyperparameters.n_episodes)
-np.save(exp_file_prefix + "performance", [reward/hyperparameters.n_episodes])
+np.save(hyperparameters.exp_file_prefix + "performance", [reward/hyperparameters.n_episodes])
 
 # print(q_table)

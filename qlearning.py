@@ -7,7 +7,7 @@ import random
 from tqdm import tqdm
 import utils
 import hyperparameters
-
+import argparse
 
 # env = CircleOfDeath()
 env = CircleOfDeathAdversarial(hyperparameters.n_adversaries)
@@ -26,7 +26,7 @@ episode_rewards = []
 episode_iterations = []
 episode_result = []
 
-for i in tqdm(range(1, hyperparameters.n_episodes)):
+for i in tqdm(range(hyperparameters.n_episodes)):
     new_env = env.reset()
     state = new_env['cur_loc']
 
@@ -91,10 +91,10 @@ print("Training finished.\n")
 # breakpoint()
 
 #TODO Save q_table and three lists
-np.save(exp_file_prefix + "q_table", q_table)
-np.save(exp_file_prefix + "episode_rewards", episode_rewards)
-np.save(exp_file_prefix + "episode_iterations", episode_iterations)
-np.save(exp_file_prefix + "episode_result", episode_result)
+np.save(hyperparameters.exp_file_prefix + "q_table", q_table)
+np.save(hyperparameters.exp_file_prefix + "episode_rewards", episode_rewards)
+np.save(hyperparameters.exp_file_prefix + "episode_iterations", episode_iterations)
+np.save(hyperparameters.exp_file_prefix + "episode_result", episode_result)
 
 test_actions_len = []
 test_result = []
@@ -117,7 +117,7 @@ for episode in tqdm(range(hyperparameters.test_eps)):
     ep_reward = 0
     ep_success = False
 
-    while True:
+    for i in range(50):
         # print(observation)
         action = np.argmax(q_table[observation['cur_loc'], goal_num])
         actions_list.append(action)
@@ -128,18 +128,19 @@ for episode in tqdm(range(hyperparameters.test_eps)):
         if done:
             if env.state["cur_loc"] in env.state["exit_goal"]:
                 ep_success = True
-
-
-            test_actions_len.append(len(actions_list))
-            test_result.append(ep_success)
-            test_rewards.append(ep_reward)
             # print("Episode finished after {} timesteps".format(t+1))
             break
+
+
+    test_actions_len.append(len(actions_list))
+    test_result.append(ep_success)
+    test_rewards.append(ep_reward)
+            
 # breakpoint()
 
-np.save(exp_file_prefix + "test_actions_len", test_actions_len)
-np.save(exp_file_prefix + "test_result", test_result)
-np.save(exp_file_prefix + "test_rewards", test_rewards)
+np.save(hyperparameters.exp_file_prefix + "test_actions_len", test_actions_len)
+np.save(hyperparameters.exp_file_prefix + "test_result", test_result)
+np.save(hyperparameters.exp_file_prefix + "test_rewards", test_rewards)
 
 print("Testing finished")
 #TODO: SAVE LISTS w/ exp name
